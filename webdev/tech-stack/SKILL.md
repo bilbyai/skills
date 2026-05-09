@@ -1,5 +1,5 @@
 ---
-name: bilby-webdev-tech-stack
+name: bilby-tech-stack
 description: Use when working on web apps or related web development tasks.
 ---
 
