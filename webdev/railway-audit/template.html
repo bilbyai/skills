@@ -1,0 +1,313 @@
+<!doctype html>
+<!--
+  Railway audit template. Agents: edit ONLY the JSON in <script id="data"> (and copy for new fields
+  into the render code at the bottom if you add a section). Everything else is generic.
+  Any number you put here must come from real data. Delete sections you have no data for
+  (leave the array empty and the section is hidden).
+-->
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Railway usage audit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #f6f5f1; --card: #fff; --fg: #1a1d1c; --mut: #6b7270; --line: #e6e4dc;
+    --brand: #0f766e; --brand-soft: #e3f3f1; --warn: #b45309; --warn-soft: #fdf1dd;
+    --bad: #be123c; --bad-soft: #fde8ed; --good: #15803d; --good-soft: #e3f5e8;
+    --c0: #0f766e; --c1: #d97706; --c2: #7c3aed; --c3: #e11d48; --c4: #2563eb; --c5: #65a30d; --c6: #94a3b8;
+    --r: 14px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.55 "Plus Jakarta Sans", system-ui, sans-serif; }
+  main { max-width: 1040px; margin: 0 auto; padding: 44px 24px 96px; }
+  .num, td.n, .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+  h1 { font-size: 30px; letter-spacing: -.03em; margin: 0; font-weight: 800; }
+  h2 { font-size: 17px; letter-spacing: -.01em; margin: 44px 0 14px; display: flex; align-items: center; gap: 8px; font-weight: 700; }
+  h2 .i { color: var(--brand); }
+  .sub { color: var(--mut); margin: 4px 0 26px; }
+  .i { width: 18px; height: 18px; flex: none; }
+  .grid { display: grid; gap: 14px; }
+  .cards { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+  .two { grid-template-columns: 1fr 1fr; }
+  @media (max-width: 760px) { .two { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 18px; }
+  .stat .top { display: flex; align-items: center; gap: 8px; color: var(--mut); font-size: 13px; font-weight: 500; }
+  .stat .ic { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--brand-soft); color: var(--brand); }
+  .stat .ic.warn { background: var(--warn-soft); color: var(--warn); }
+  .stat .ic.bad { background: var(--bad-soft); color: var(--bad); }
+  .stat .ic.good { background: var(--good-soft); color: var(--good); }
+  .stat b { display: block; font-size: 27px; letter-spacing: -.03em; margin-top: 10px; font-weight: 800; }
+  .stat small { color: var(--mut); font-size: 12.5px; }
+  .up { color: var(--bad); } .down { color: var(--good); } .muted { color: var(--mut); }
+  .card h3 { margin: 0 0 12px; font-size: 14px; font-weight: 700; }
+  .donut-wrap { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+  .donut { width: 170px; height: 170px; flex: none; }
+  .donut text { font-family: "Plus Jakarta Sans"; }
+  .legend { flex: 1; min-width: 170px; display: grid; gap: 7px; font-size: 13.5px; }
+  .legend div { display: flex; align-items: center; gap: 8px; }
+  .legend i { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+  .legend span:last-child { margin-left: auto; }
+  .callout { background: var(--brand-soft); border: 1px solid #bfe3de; border-radius: var(--r); padding: 16px 20px; }
+  .callout p { margin: 0 0 8px; } .callout p:last-child { margin: 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--line); }
+  th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--mut); font-weight: 600; background: #faf9f5; }
+  td.n, th.n { text-align: right; }
+  tr:last-child td { border-bottom: 0; }
+  .tablewrap { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; overflow-x: auto; }
+  details { margin: 10px 0; }
+  summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 1fr auto; gap: 8px 16px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 16px; font-weight: 700; }
+  summary::-webkit-details-marker { display: none; }
+  summary .pn { display: flex; align-items: center; gap: 8px; }
+  summary .pn .i { color: var(--mut); transition: transform .15s; }
+  details[open] summary .pn .i { transform: rotate(90deg); }
+  summary .mini { grid-column: 1 / -1; height: 6px; border-radius: 9px; background: #eceae2; overflow: hidden; display: flex; }
+  summary .mini i { display: block; height: 100%; }
+  details[open] summary { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+  details .tablewrap { border-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; }
+  .tag { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 600; border-radius: 99px; padding: 1px 8px 1px 6px; background: #f0eee6; color: var(--mut); margin-left: 6px; }
+  .tag .i { width: 11px; height: 11px; }
+  .tag.good { background: var(--good-soft); color: var(--good); }
+  .tag.warn { background: var(--warn-soft); color: var(--warn); }
+  .tag.bad { background: var(--bad-soft); color: var(--bad); }
+  .bars { display: grid; gap: 9px; }
+  .bar { display: grid; grid-template-columns: minmax(130px, 220px) 1fr 70px; gap: 12px; align-items: center; font-size: 13.5px; }
+  .bar .t { height: 10px; background: #eceae2; border-radius: 9px; overflow: hidden; }
+  .bar .f { height: 100%; background: var(--brand); border-radius: 9px; }
+  .list { display: grid; gap: 10px; }
+  .item { display: flex; gap: 12px; align-items: flex-start; }
+  .item .ic { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; flex: none; background: var(--brand-soft); color: var(--brand); }
+  .item.warn .ic { background: var(--warn-soft); color: var(--warn); }
+  .item.bad .ic { background: var(--bad-soft); color: var(--bad); }
+  .item.good .ic { background: var(--good-soft); color: var(--good); }
+  .item h4 { margin: 0; font-size: 14.5px; }
+  .item p { margin: 2px 0 0; color: var(--mut); font-size: 13.5px; }
+  .item code, code { font-family: "IBM Plex Mono", monospace; font-size: 12.5px; background: #f0eee6; padding: 1px 6px; border-radius: 6px; color: var(--fg); }
+  .pills { margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .line svg { width: 100%; height: auto; display: block; }
+  .foot { color: var(--mut); font-size: 12.5px; margin-top: 40px; }
+  [hidden] { display: none !important; }
+</style>
+
+<main>
+  <header>
+    <h1 id="title"></h1>
+    <p class="sub" id="subtitle"></p>
+  </header>
+
+  <section class="grid cards" id="cards"></section>
+
+  <section class="grid two" style="margin-top:14px">
+    <div class="card"><h3>Cost by line item</h3><div class="donut-wrap" id="donutItems"></div></div>
+    <div class="card"><h3>Cost by project</h3><div class="donut-wrap" id="donutProjects"></div></div>
+  </section>
+
+  <section id="focusSec" hidden>
+    <h2 id="focusH"></h2>
+    <div class="callout" id="focusText"></div>
+    <div class="grid two" style="margin-top:14px">
+      <div class="card"><h3>Top consumers</h3><div class="bars" id="focusBars"></div></div>
+      <div class="card line" id="lineCard"><h3 id="lineTitle"></h3><div id="line"></div></div>
+    </div>
+  </section>
+
+  <section id="projSec">
+    <h2 id="projH"></h2>
+    <div id="projects"></div>
+  </section>
+
+  <section id="changesSec" hidden><h2 id="changesH"></h2><div class="card list" id="changes"></div></section>
+  <section id="improveSec" hidden><h2 id="improveH"></h2><div class="grid two" id="improve"></div></section>
+  <section id="watchSec" hidden><h2 id="watchH"></h2><div class="card list" id="watch"></div></section>
+  <section id="prevSec" hidden><h2 id="prevH"></h2><div class="card list" id="prev"></div></section>
+
+  <p class="foot" id="foot"></p>
+</main>
+
+<!-- ============ EDIT THIS ============ -->
+<script id="data" type="application/json">
+{
+  "title": "Railway usage audit",
+  "workspace": "Bilby",
+  "period": "Sep 13 – Oct 13, 2026",
+  "comparedTo": "Aug 13 – Sep 13, 2026",
+  "usageTotal": 130.58,
+  "prevTotal": 135.75,
+  "receiptTotal": 130.31,
+  "receiptNote": "Receipt is usage minus the $20 plan credit, plus rounding.",
+
+  "lineItems": [
+    { "label": "Memory", "value": 112.65, "icon": "memory" },
+    { "label": "Disk", "value": 9.43, "icon": "disk" },
+    { "label": "CPU", "value": 8.02, "icon": "cpu" },
+    { "label": "Network", "value": 0.48, "icon": "net" }
+  ],
+
+  "projects": [
+    {
+      "name": "example-project", "total": 20.0, "prev": 18.0,
+      "services": [
+        { "name": "api", "avgGB": 1.5, "mem": 14.8, "other": 5.0, "total": 19.8, "prev": 18.5, "tags": ["public"] },
+        { "name": "worker", "avgGB": 0.02, "mem": 0.1, "other": 0.1, "total": 0.2, "prev": 0.2, "tags": ["sleeps"] }
+      ]
+    }
+  ],
+  "projectsMinShown": 2,
+
+  "focus": {
+    "title": "Why memory is $112",
+    "html": "<p>Memory is billed on GB used × time (~$10 per GB-month) for every always-on service.</p><p><b>One service is X% of it.</b></p>",
+    "bars": [ { "label": "project / service", "value": 41.16, "note": "4.17 GB avg" } ],
+    "series": { "title": "Memory, last 24h", "unit": "GB", "limit": 16, "points": [ { "t": "2026-10-12T12:00Z", "v": 3.7 }, { "t": "2026-10-13T12:00Z", "v": 4.1 } ] }
+  },
+
+  "changes": [ { "icon": "down", "tone": "good", "title": "graph-demo $23 → $10", "text": "Postgres avg memory dropped ~1.8 → 0.6 GB." } ],
+
+  "improve": [
+    { "title": "Qdrant int8 quantization", "text": "Keep quantized vectors in RAM, originals on disk.", "saving": "$15–25/mo (estimate)", "effort": "medium", "where": "packages/sinks/src/qdrant.ts" }
+  ],
+
+  "watch": [ { "icon": "alert", "tone": "bad", "title": "No spend limit set", "text": "Run <code>railway usage limit set --workspace &lt;id&gt; --target workspace --soft 75 --hard 125</code>" } ],
+
+  "previous": {
+    "period": "Aug 13 – Sep 13, 2026",
+    "source": "railway-audit/2026-09.json",
+    "items": [ { "status": "done", "text": "Example: parser now sleeps (was $4.22, now $0.82)" } ]
+  },
+
+  "sources": "Railway usage API per service, Railway CLI, Qdrant read-only stats. Savings are estimates."
+}
+</script>
+<!-- ============ /EDIT THIS ============ -->
+
+<script>
+  const D = JSON.parse(document.getElementById("data").textContent);
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+  const money = (v) => "$" + Number(v || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const COLORS = ["var(--c0)", "var(--c1)", "var(--c2)", "var(--c3)", "var(--c4)", "var(--c5)", "var(--c6)"];
+
+  // lucide-style paths
+  const P = {
+    dollar: '<line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
+    up: '<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',
+    down: '<polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/>',
+    memory: '<rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M15 20v2M2 15h2M2 9h2M20 15h2M20 9h2M9 2v2M9 20v2"/>',
+    cpu: '<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
+    disk: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/>',
+    net: '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+    server: '<rect width="20" height="8" x="2" y="2" rx="2"/><rect width="20" height="8" x="2" y="14" rx="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/>',
+    folder: '<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>',
+    alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+    bulb: '<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>',
+    eye: '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+    check: '<path d="M20 6 9 17l-5-5"/>',
+    wallet: '<path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/>',
+    history: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>',
+    pulse: '<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>',
+    moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+    chevron: '<path d="m9 18 6-6-6-6"/>',
+    plug: '<path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/>',
+    dot: '<circle cx="12" cy="12" r="3"/>',
+  };
+  const icon = (n) => `<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${P[n] || P.dot}</svg>`;
+  const delta = (a, b) => {
+    if (!b) return '<span class="muted">new</span>';
+    const d = a - b, cls = d > 0.05 ? "up" : d < -0.05 ? "down" : "muted";
+    return `<span class="${cls} num">${d >= 0 ? "+" : "−"}${money(Math.abs(d))}</span>`;
+  };
+  const show = (id, on) => { $(id).hidden = !on; };
+  const tagMeta = { sleeps: ["moon", "good"], public: ["net", ""], tcp: ["plug", "warn"] };
+  const tag = (t) => { const [i, c] = tagMeta[t] || ["dot", ""]; return `<span class="tag ${c}">${icon(i)}${esc(t)}</span>`; };
+
+  // ---------- donut ----------
+  function donut(el, rows, centerTop, centerBottom) {
+    const total = rows.reduce((a, r) => a + r.value, 0) || 1;
+    let acc = 0;
+    const segs = rows.map((r, i) => {
+      const pct = (r.value / total) * 100, off = 25 - acc; acc += pct;
+      return `<circle r="15.9155" cx="21" cy="21" fill="none" stroke="${COLORS[i % COLORS.length]}" stroke-width="5.5" stroke-dasharray="${pct} ${100 - pct}" stroke-dashoffset="${off}"><title>${esc(r.label)}: ${money(r.value)} (${pct.toFixed(0)}%)</title></circle>`;
+    }).join("");
+    $(el).innerHTML = `<svg class="donut" viewBox="0 0 42 42"><circle r="15.9155" cx="21" cy="21" fill="none" stroke="#eceae2" stroke-width="5.5"/>${segs}
+      <text x="21" y="20.5" text-anchor="middle" font-size="5" font-weight="800" fill="#1a1d1c">${esc(centerTop)}</text>
+      <text x="21" y="25.5" text-anchor="middle" font-size="2.6" fill="#6b7270">${esc(centerBottom)}</text></svg>
+      <div class="legend">${rows.map((r, i) => `<div><i style="background:${COLORS[i % COLORS.length]}"></i><span>${esc(r.label)}</span><span class="num">${money(r.value)} <span class="muted">${((r.value / total) * 100).toFixed(0)}%</span></span></div>`).join("")}</div>`;
+  }
+
+  // ---------- line chart ----------
+  function line(el, s) {
+    const W = 460, H = 200, L = 36, B = 22, T = 10, R = 8;
+    const pts = s.points.map((p) => ({ x: +new Date(p.t), y: p.v }));
+    const xs = pts.map((p) => p.x), ys = pts.map((p) => p.y).concat(s.limit ? [s.limit] : []);
+    const x0 = Math.min(...xs), x1 = Math.max(...xs), y1 = Math.max(...ys) * 1.05;
+    const X = (x) => L + ((x - x0) / (x1 - x0 || 1)) * (W - L - R), Y = (y) => T + (1 - y / y1) * (H - T - B);
+    const path = pts.map((p, i) => `${i ? "L" : "M"}${X(p.x).toFixed(1)},${Y(p.y).toFixed(1)}`).join("");
+    const area = `${path}L${X(x1)},${Y(0)}L${X(x0)},${Y(0)}Z`;
+    const grid = [0, 0.5, 1].map((f) => { const v = y1 * f; return `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="#e6e4dc"/><text x="${L - 6}" y="${Y(v) + 3}" text-anchor="end" font-size="10" fill="#6b7270" font-family="IBM Plex Mono">${v.toFixed(0)}</text>`; }).join("");
+    const lim = s.limit ? `<line x1="${L}" x2="${W - R}" y1="${Y(s.limit)}" y2="${Y(s.limit)}" stroke="var(--bad)" stroke-dasharray="4 4"/><text x="${W - R}" y="${Y(s.limit) - 4}" text-anchor="end" font-size="10" fill="var(--bad)">limit ${s.limit} ${esc(s.unit)}</text>` : "";
+    const fmt = (t) => new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    $(el).innerHTML = `<svg viewBox="0 0 ${W} ${H}">${grid}${lim}<path d="${area}" fill="var(--brand)" opacity=".12"/><path d="${path}" fill="none" stroke="var(--brand)" stroke-width="2"/>
+      <text x="${L}" y="${H - 6}" font-size="10" fill="#6b7270">${fmt(x0)}</text><text x="${W - R}" y="${H - 6}" text-anchor="end" font-size="10" fill="#6b7270">${fmt(x1)}</text></svg>`;
+  }
+
+  // ---------- render ----------
+  $("#title").textContent = D.title;
+  $("#subtitle").textContent = `${D.workspace} workspace · ${D.period}` + (D.comparedTo ? ` · compared with ${D.comparedTo}` : "");
+  document.title = `${D.title} – ${D.period}`;
+
+  const mem = D.lineItems.find((l) => /mem/i.test(l.label));
+  const biggest = [...D.projects].sort((a, b) => b.total - a.total)[0];
+  const diff = D.usageTotal - (D.prevTotal || 0);
+  const cards = [
+    { ic: "dollar", t: "Usage this period", v: money(D.usageTotal), s: D.receiptTotal ? `Receipt ${money(D.receiptTotal)}` : "" },
+    { ic: diff > 0 ? "up" : "down", tone: diff > 0 ? "bad" : "good", t: "vs previous period", v: `${diff >= 0 ? "+" : "−"}${money(Math.abs(diff))}`, s: `was ${money(D.prevTotal)}` },
+    mem && { ic: "memory", tone: "warn", t: "Memory share", v: `${((mem.value / D.usageTotal) * 100).toFixed(0)}%`, s: `${money(mem.value)} of usage` },
+    biggest && { ic: "folder", t: "Biggest project", v: biggest.name, s: `${money(biggest.total)} · ${((biggest.total / D.usageTotal) * 100).toFixed(0)}% of usage` },
+  ].filter(Boolean);
+  $("#cards").innerHTML = cards.map((c) => `<div class="card stat"><div class="top"><span class="ic ${c.tone || ""}">${icon(c.ic)}</span>${esc(c.t)}</div><b class="${/^[−+$\d]/.test(c.v) ? "num" : ""}" style="${c.v.length > 12 ? "font-size:21px" : ""}">${esc(c.v)}</b><small>${esc(c.s)}</small></div>`).join("");
+
+  donut("#donutItems", D.lineItems.map((l) => ({ label: l.label, value: l.value })), money(D.usageTotal).replace(".00", ""), "usage");
+  const sorted = [...D.projects].sort((a, b) => b.total - a.total);
+  const head = sorted.slice(0, 5).map((p) => ({ label: p.name, value: p.total }));
+  const rest = sorted.slice(5).reduce((a, p) => a + p.total, 0);
+  donut("#donutProjects", rest > 0 ? [...head, { label: `${sorted.length - 5} others`, value: rest }] : head, `${sorted.length}`, "projects");
+
+  if (D.focus) {
+    show("#focusSec", true);
+    $("#focusH").innerHTML = icon("memory") + esc(D.focus.title);
+    $("#focusText").innerHTML = D.focus.html;
+    const mx = Math.max(...D.focus.bars.map((b) => b.value), 1);
+    $("#focusBars").innerHTML = D.focus.bars.map((b) => `<div class="bar"><span>${esc(b.label)}${b.note ? ` <span class="muted">· ${esc(b.note)}</span>` : ""}</span><div class="t"><div class="f" style="width:${(b.value / mx) * 100}%"></div></div><span class="num" style="text-align:right">${money(b.value)}</span></div>`).join("");
+    if (D.focus.series?.points?.length > 1) { $("#lineTitle").textContent = D.focus.series.title; line("#line", D.focus.series); } else show("#lineCard", false);
+  }
+
+  const shown = sorted.filter((p) => p.total >= (D.projectsMinShown ?? 2));
+  const other = sorted.filter((p) => p.total < (D.projectsMinShown ?? 2));
+  $("#projH").innerHTML = icon("server") + "Projects &amp; services";
+  const projRow = (p, i) => {
+    const sv = [...p.services].sort((a, b) => b.total - a.total).filter((s) => s.total >= 0.05);
+    const mini = sv.slice(0, 6).map((s, j) => `<i title="${esc(s.name)} ${money(s.total)}" style="width:${(s.total / p.total) * 100}%;background:${COLORS[j % COLORS.length]}"></i>`).join("");
+    return `<details ${i < 2 ? "open" : ""}><summary><span class="pn">${icon("chevron")}${esc(p.name)}</span><span class="num">${money(p.total)} <small class="muted">${delta(p.total, p.prev)}</small></span><span class="mini">${mini}</span></summary>
+      <div class="tablewrap"><table><tr><th>Service<th class="n">Avg GB<th class="n">Memory<th class="n">CPU+disk+net<th class="n">Total<th class="n">Previous<th class="n">Δ</tr>
+      ${sv.map((s) => `<tr><td>${esc(s.name)}${(s.tags || []).map(tag).join("")}<td class="n">${(+s.avgGB).toFixed(2)}<td class="n">${money(s.mem)}<td class="n">${money(s.other)}<td class="n"><b>${money(s.total)}</b><td class="n">${money(s.prev)}<td class="n">${delta(s.total, s.prev)}</tr>`).join("")}</table></div></details>`;
+  };
+  $("#projects").innerHTML = shown.map(projRow).join("") + (other.length ? `<details><summary><span class="pn">${icon("chevron")}Everything else (${other.length})</span><span class="num">${money(other.reduce((a, p) => a + p.total, 0))}</span></summary><div class="tablewrap"><table><tr><th>Project<th class="n">This period<th class="n">Previous</tr>${other.filter((p) => p.total > 0).map((p) => `<tr><td>${esc(p.name)}<td class="n">${money(p.total)}<td class="n">${money(p.prev)}</tr>`).join("")}</table></div></details>` : "");
+
+  const items = (arr, fallbackIcon) => arr.map((c) => `<div class="item ${c.tone || ""}"><span class="ic">${icon(c.icon || fallbackIcon)}</span><div><h4>${c.title}</h4><p>${c.text || ""}</p></div></div>`).join("");
+  if (D.changes?.length) { show("#changesSec", true); $("#changesH").innerHTML = icon("pulse") + "What changed"; $("#changes").innerHTML = items(D.changes, "pulse"); }
+  if (D.improve?.length) {
+    show("#improveSec", true); $("#improveH").innerHTML = icon("bulb") + "How to improve";
+    $("#improve").innerHTML = D.improve.map((c) => `<div class="card item"><span class="ic">${icon("wallet")}</span><div><h4>${esc(c.title)}</h4><p>${c.text}</p><div class="pills">${c.saving ? `<span class="tag good">${esc(c.saving)}</span>` : ""}${c.effort ? `<span class="tag">effort: ${esc(c.effort)}</span>` : ""}${c.where ? `<span class="tag"><code style="background:none;padding:0">${esc(c.where)}</code></span>` : ""}</div></div></div>`).join("");
+  }
+  if (D.watch?.length) { show("#watchSec", true); $("#watchH").innerHTML = icon("eye") + "What to watch"; $("#watch").innerHTML = items(D.watch, "alert"); }
+  if (D.previous?.items?.length) {
+    show("#prevSec", true); $("#prevH").innerHTML = icon("history") + `Since the last report (${esc(D.previous.period)})`;
+    const tone = { done: "good", open: "warn", worse: "bad" }, ic = { done: "check", open: "dot", worse: "alert" };
+    $("#prev").innerHTML = D.previous.items.map((c) => `<div class="item ${tone[c.status] || ""}"><span class="ic">${icon(ic[c.status] || "dot")}</span><div><h4>${c.text}</h4></div></div>`).join("");
+  }
+  $("#foot").textContent = [D.receiptNote, D.sources].filter(Boolean).join(" ");
+</script>
+</html>
