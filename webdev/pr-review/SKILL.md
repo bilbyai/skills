@@ -1,6 +1,6 @@
 ---
 name: pr-review
-description: Review a PR or branch against main and post it as a PR comment (merge confidence, regressions, migrations, pre-merge checklist, a small Mermaid map). Use when asked to review a PR or branch, or when a PR process asks for a pr-review.
+description: Review a PR or branch against main and post it as a PR comment (merge confidence, regressions, migrations, pre-merge checklist, a small Mermaid diagram of what the change does). Use when asked to review a PR or branch, or when a PR process asks for a pr-review.
 ---
 # PR review
 
@@ -35,8 +35,9 @@ Model: <model id>, <thinking effort, or "effort unknown">
 ## Summary
 <small description, ready to read as a PR comment>
 
-## Map
-<Mermaid flowchart of what changed: touched files/modules as nodes, edges for how they call or depend on each other. At most ~10 nodes; group small files. Its job is to tell a reader where to start.>
+<Mermaid flowchart of what the change does, in an open details block; see "The diagram" below>
+
+**Where to start:** the 2-4 files to read first, one line each.
 
 ## Regressions
 ## Migrations
@@ -44,6 +45,32 @@ Model: <model id>, <thinking effort, or "effort unknown">
 ## Before merging
 - [ ] checklist
 ```
+
+## The diagram
+It shows what the change does, as it happens, and is read by someone who hasn't opened the diff.
+- Nodes are user actions, events, decisions and outcomes in plain words: "Reader opens a shared chat", "Link still public?", "Show the saved snapshot". Never files, modules, functions or tables.
+- 6 to 14 nodes. `flowchart TD`, or `LR` for a short straight path. Decisions are `{...}` nodes with labelled edges, and the branches that changed (errors, permissions, empty states, retries) are drawn.
+- Start the block with `%%{init: {'theme': 'neutral'}}%%` and wrap it in an open `<details>` block, as below.
+- Backend or refactor changes: draw the request or job the change affects, from trigger to outcome, still without file names.
+- No flow to draw (docs, config, dependency bump)? Leave the diagram out and write "No flow to draw: <why>" in one line.
+- The files to read first go in "Where to start", not in the diagram.
+
+Format, in the comment (an example for a change that adds shared-chat snapshots):
+
+````
+<details open><summary><h3>Diagram</h3></summary>
+
+```mermaid
+%%{init: {'theme': 'neutral'}}%%
+flowchart TD
+  A[Reader opens a shared chat] --> B{Link still public?}
+  B -->|Yes| C[Show the saved snapshot]
+  B -->|No| D[Show that it is no longer shared]
+  C --> E[Owner presses Update]
+  E --> F[Replace the snapshot]
+```
+</details>
+````
 
 ## Post
 - **On a PR, with write access:** post it as a comment. Keep one review comment per author: if one exists, update it.
