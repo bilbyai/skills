@@ -13,7 +13,7 @@ description: Use before opening or updating any PR in a Bilby repo (pulse, ragst
 3. **Audit tests.** If the PR adds or changes tests, run the `test-audit` skill and fix what it flags (duplicate or implementation-coupled tests, tests that don't exercise the path they claim, test-only production seams).
 4. **Review.** Run the pr-review skill, yourself or through a reviewer agent; it posts the review as a PR comment. It gives an X/5 merge confidence, a [Low/Medium/High impact] tag, a pre-merge checklist and confidence bumps.
 5. **Raise confidence.** Don't stop at the score. Make the changes and run the verifications it points to, then review again, until merge confidence is at least 4.0/5. If it can't reach 4.0, say why.
-6. **Hand off.** The PR description says what was verified and how, and what couldn't be verified. Then hand it over for merge.
+6. **Hand off.** The PR description says what was verified and how, and what couldn't be verified, and **which model made the change**: a line `Model: <model id>, <thinking effort, or "effort unknown">` (the same format the pr-review comment uses). If more than one model worked on it, name each and what it did. Then hand it over for merge.
 
 ## Standing rules
 - Push with your own Bilby GitHub account.
